@@ -10,6 +10,8 @@ public class MnistReader {
 
 	private  byte[] label_data;
 	private  ArrayList<int[][]> imageList;
+	private int imageWidth;
+	private int imageHeight;
 
 	public byte[] getLabels() {
 		return label_data;
@@ -47,17 +49,17 @@ public class MnistReader {
 
 			System.out.println("number of labels: " + number_of_labels + " number of images: " + number_of_images);
 			
-			int image_height = ( image_data_stream.read() << 24) | 
+			imageHeight = ( image_data_stream.read() << 24) | 
 					(image_data_stream.read() << 16) | (image_data_stream.read() << 8) |
 					(image_data_stream.read());
 			
-			int image_width = image_data_stream.readInt();
+			imageWidth = image_data_stream.readInt();
 
-			System.out.println("image size:" + image_width + "x" + image_height);
+			System.out.println("image size:" + imageWidth + "x" + imageHeight);
 
 			label_data = new byte[number_of_labels];
 
-			int image_size = image_height * image_width;
+			int image_size = imageHeight * imageWidth;
 			byte[] image_data = new byte[image_size * number_of_images];
 
 			label_data_stream.read(label_data);
@@ -68,11 +70,11 @@ public class MnistReader {
 				int label = label_data[i];
 				//System.out.println(label);
 
-				image = new int[image_width][image_height];
+				image = new int[imageWidth][imageHeight];
 
-				for (int row = 0; row < image_height; row++) {
-					for (int col = 0; col < image_width; col++) {
-						image[row][col] = image_data[(i * image_size) + ((row * image_width) + col)] & 0XFF;
+				for (int row = 0; row < imageHeight; row++) {
+					for (int col = 0; col < imageWidth; col++) {
+						image[row][col] = image_data[(i * image_size) + ((row * imageWidth) + col)] & 0XFF;
 
 					}
 				}
@@ -83,4 +85,13 @@ public class MnistReader {
 			System.out.println("The 'try catch' is finished.");
 		}
 	}
+
+	public int getImageWidth() {
+		return imageWidth;
+	}
+
+	public int getImageHeight() {
+		return imageHeight;
+	}
+	
 }

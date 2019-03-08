@@ -4,7 +4,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.Raster;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -24,13 +28,17 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.Point;
 import java.awt.Stroke;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class Main {
-	private static final int SIDE_LENGTH = 280;
+	private int mnistHeight;
+	private int mnistWidth;
 	
 	//tasks to complete
 	// using buffered image to display an image
@@ -46,8 +54,9 @@ public class Main {
 	public static ExecutorService trainExecutor;
 	public static ScheduledExecutorService testExecutor;
 	MnistReader reader;
-	BufferedImage bim = new BufferedImage(280, 280, BufferedImage.TYPE_INT_RGB);
+	BufferedImage bim;
 	private Graphics2D g2d;
+	Point last = null;
 	
 	/**
 	 * Launch the application.
@@ -79,6 +88,9 @@ public class Main {
 	public Main() throws FileNotFoundException, IOException {
 		reader = new MnistReader();
 		reader.readMnist();
+		mnistHeight = reader.getImageHeight();
+		mnistWidth = reader.getImageWidth();
+		bim = new BufferedImage(mnistWidth * 10, mnistHeight * 10, BufferedImage.TYPE_INT_RGB);
 		initialize();
 
 	}
@@ -109,24 +121,60 @@ public class Main {
 		JPanel panel = new CanvasPanel();
 		
 		g2d = bim.createGraphics();
-		g2d.setPaint(Color.WHITE);
-		g2d.fillRect(0, 0, SIDE_LENGTH, SIDE_LENGTH);
+		g2d.setPaint(Color.BLACK);
+		g2d.fillRect(0, 0, mnistWidth *  10 , mnistHeight * 10);
 		
-		panel.setPreferredSize(new Dimension(SIDE_LENGTH, SIDE_LENGTH));
-		panel.setBackground(Color.WHITE);
-		panel.setForeground(Color.BLACK);
+		panel.setPreferredSize(new Dimension(mnistWidth * 10, mnistHeight * 10));
+		panel.setBackground(Color.BLACK);
+		panel.setForeground(Color.WHITE);
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(Color.WHITE);
 
 		
 		panel.addMouseListener(new MouseListener() {
-			
+
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				// TODO Auto-generated method stub
 				// probably ignored
-				System.out.println("Rle");
+				System.out.println("released");
+				BufferedImage scaled = new BufferedImage(mnistWidth, mnistHeight, BufferedImage.TYPE_INT_RGB);
+				AffineTransform trans = new AffineTransform();
+				trans.scale(0.1, 0.1);
+				BufferedImageOp op = new AffineTransformOp(trans, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+				op.filter(bim, scaled);
+				
+				int[][] pixels = new int[mnistHeight][mnistWidth];
+				Raster raster = scaled.getRaster();
+				for(int row = 0 ; row < mnistHeight ; row++) {
+					for(int col = 0 ; col < mnistWidth; col++) {
+						int[] pixel = raster.getPixel(col, row, new int[3]);
+						int avg =  (pixel[0] + pixel[1] + pixel[2] )/3;
+						pixels[row][col] = avg;
+						
+						//pixels [row][col] = (pixel[0] + pixel[1] + pixel[2] )/3;
+					}
+				}
+				
+				for(int row = 0 ; row < mnistHeight ; row++ ) {
+					for(int col = 0 ; col < mnistWidth ; col++) {
+						if(pixels[row][col] == 0) {
+							System.out.print(' ');
+						}
+						else {
+							System.out.print('*');
+						}
+					}
+					System.out.println();
+				}
+				KNN knn = new KNN(reader);
+				ArrayList<LabelDistance> distance = knn.findNeighbours(pixels);
+				Map<Byte, Integer> counts = knn.aggregate(distance, 10);
+				
+				Byte labeled = knn.findNearest(counts);
+				System.out.println("Nearest neighbours prediction = " + labeled);
+				last = null;
 			}
 			
 			@Override
@@ -134,19 +182,26 @@ public class Main {
 				// TODO Auto-generated method stub
 				// this is where you color
 				// color the pixel under the mouse.
-				System.out.println(e.getX() + " " + e.getY());
-				g2d.setPaint(Color.black);
+				
+				g2d.setPaint(Color.WHITE);
 				g2d.setStroke(new BasicStroke(10));
-				g2d.drawLine(e.getX(), e.getY(), e.getX(), e.getY());
+				if(last == null) {
+					
+					g2d.drawLine(e.getX(), e.getY(), e.getX(), e.getY());
+				}
+				else {
+					g2d.drawLine(last.x, last.y, e.getX(), e.getY());
+				}
+				last = e.getPoint();
 				panel.repaint();
-				System.out.println("drag started, record the starting point");
+				
 			}
 			
 			@Override
 			public void mouseExited(MouseEvent e) {
 				// TODO Auto-generated method stubS
 				// this is where you run KNN
-				System.out.println("exit" + panel.getSize());
+				last = null;
 			}
 			
 			@Override
@@ -160,7 +215,12 @@ public class Main {
 			public void mouseClicked(MouseEvent e) {
 				// TODO Auto-generated method stub
 				// color the pixel under the mouse.
+				g2d.setPaint(Color.WHITE);
+				g2d.setStroke(new BasicStroke(10));
+				g2d.drawLine(e.getX(), e.getY(), e.getX(), e.getY());
 				
+				last = e.getPoint();
+				panel.repaint();
 			}
 		});
 		
@@ -176,9 +236,16 @@ public class Main {
 			public void mouseDragged(MouseEvent e) {
 				// TODO Auto-generated method stub
 				// color the pixel under the mouse
-				g2d.setPaint(Color.black);
+				g2d.setPaint(Color.WHITE);
 				g2d.setStroke(new BasicStroke(10));
-				g2d.drawLine(e.getX(), e.getY(), e.getX(), e.getY());
+				if(last == null) {
+					
+					g2d.drawLine(e.getX(), e.getY(), e.getX(), e.getY());
+				}
+				else {
+					g2d.drawLine(last.x, last.y, e.getX(), e.getY());
+				}
+				last = e.getPoint();
 				panel.repaint();
 			}
 		});
@@ -194,8 +261,8 @@ public class Main {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Paint p = g2d.getPaint();
-				g2d.setPaint(Color.WHITE);
-				g2d.drawRect(0,0,SIDE_LENGTH, SIDE_LENGTH);
+				g2d.setPaint(Color.BLACK);
+				g2d.fillRect(0,0,mnistWidth * 10, mnistHeight * 10);
 				g2d.setPaint(p);
 				panel.repaint();
 				System.out.print("aa");
@@ -210,7 +277,7 @@ public class Main {
 			groupLayout.createParallelGroup(Alignment.TRAILING)
 				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap(84, Short.MAX_VALUE)
-					.addComponent(panel, GroupLayout.PREFERRED_SIZE, 280, GroupLayout.PREFERRED_SIZE)
+					.addComponent(panel, GroupLayout.PREFERRED_SIZE,  mnistHeight * 10, GroupLayout.PREFERRED_SIZE)
 					.addGap(72)
 					.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, 284, GroupLayout.PREFERRED_SIZE)
 					.addGap(76))
@@ -238,7 +305,7 @@ public class Main {
 							.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 287, Short.MAX_VALUE)
 							.addGap(35))
 						.addGroup(groupLayout.createSequentialGroup()
-							.addComponent(panel, GroupLayout.PREFERRED_SIZE, 280, GroupLayout.PREFERRED_SIZE)
+							.addComponent(panel, GroupLayout.PREFERRED_SIZE,  mnistHeight * 10, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)))
 					.addComponent(btnClear)
 					.addGap(127))

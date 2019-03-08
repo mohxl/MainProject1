@@ -5,11 +5,17 @@ import java.util.Collections;
 import java.util.Map;
 
 public class KNN {
-	private static final int TreeMap = 0;
-	MnistReader reader = new MnistReader();
+	MnistReader reader;
 	//drawImage handrawn = new drawImage();
 	int DistanceOfP;
 	
+	public KNN() {
+		reader = new MnistReader();
+	}
+	
+	public KNN(MnistReader reader) {
+		this.reader = reader;
+	}
 
 	public ArrayList<LabelDistance> findNeighbours(int[][] sample) {
 		ArrayList<LabelDistance> distance = new ArrayList<>();
@@ -48,8 +54,16 @@ public class KNN {
 	
 	public void test() throws FileNotFoundException, IOException {
 		ArrayList<LabelDistance> distance = findNeighbours(reader.getImageList().get(0));
+		Map<Byte, Integer> counts = aggregate(distance, 10);
+		
+		Byte labeled = findNearest(counts);
+		System.out.println("Nearest neighbours prediction = " + labeled);
+		
+	}
+
+	Map<Byte, Integer> aggregate(ArrayList<LabelDistance> distance, int k) {
 		Map<Byte, Integer> counts = new java.util.TreeMap<>();
-		int k = 10;
+
 		for(int i = 0 ; i < k ; i++) {
 			LabelDistance d = distance.get(i);
 			System.out.println(d);
@@ -60,10 +74,7 @@ public class KNN {
 				counts.put(d.label, 1);
 			}
 		}
-		
-		Byte labeled = findNearest(counts);
-		System.out.println("Nearest neighbours prediction = " + labeled);
-		
+		return counts;
 	}
 	
 	
