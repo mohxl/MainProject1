@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class MnistReader {
-
+	// Declare variables, array lists
 	private  byte[] trainLabels;
 	private  ArrayList<int[][]> imageList;
 	private int imageWidth;
@@ -38,6 +38,7 @@ public class MnistReader {
 
 	public void readMnistTest() throws FileNotFoundException, IOException {
 		testImageList = new ArrayList<>();
+		// Location
 		String train_image_filename = "MNIST\\t10k-images.idx3-ubyte";
 		String train_label_filename = "MNIST\\t10k-labels.idx1-ubyte";
 		
@@ -51,7 +52,8 @@ public class MnistReader {
 	public byte[] getTestLabels() {
 		return testLabels;
 	}
-
+	
+		// Reading Image files 
 	private byte[] readFiles(String train_image_filename,
 					String train_label_filename, ArrayList<int[][]>imageList) 
 			throws FileNotFoundException, IOException {
@@ -61,15 +63,15 @@ public class MnistReader {
 		try (DataInputStream label_data_stream = new DataInputStream(new FileInputStream(train_label_filename));
 				DataInputStream image_data_stream = new DataInputStream(new FileInputStream(train_image_filename));) {
 			
-		
+			// read Bytes as int
 			int startcode_img = image_data_stream.readInt();
 			int startcode_label = label_data_stream.readInt();
-
+			// Show there are results
 			System.out.println("start code: images =" + startcode_img +  "startcodde labels =" + startcode_label);
 
 			int number_of_labels = label_data_stream.readInt();
 			int number_of_images = image_data_stream.readInt();
-
+			// Show there are results
 			System.out.println("number of labels: " + number_of_labels + " number of images: " + number_of_images);
 			
 			imageHeight = ( image_data_stream.read() << 24) | 

@@ -16,7 +16,7 @@ public class KNN {
 	public KNN(MnistReader reader) {
 		this.reader = reader;
 	}
-
+	 // creating a 2d that holds distances and labels
 	public ArrayList<LabelDistance> findNeighbours(int[][] sample) {
 		ArrayList<LabelDistance> distance = new ArrayList<>();
 		ArrayList<int[][]> images = reader.getImageList();
@@ -38,10 +38,10 @@ public class KNN {
 		return distance;
 	}
 	
+	// computing the Euclidian distance between training image and current image
 	public Byte findNearest(Map<Byte, Integer> distances) {
 		Byte champion = (byte) -1;
 		int championCount = Integer.MIN_VALUE;
-		
 		for(Byte b : distances.keySet()) {
 			int count = distances.get(b);
 			if (count > championCount) {
@@ -51,7 +51,7 @@ public class KNN {
 		}
 		return champion;
 	}
-	
+	// mapping each distance to have a key that contains a value
 	public void test() throws FileNotFoundException, IOException {
 		ArrayList<LabelDistance> distance = findNeighbours(reader.getImageList().get(0));
 		Map<Byte, Integer> counts = aggregate(distance, 10);

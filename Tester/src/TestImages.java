@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 
+// running KNN algorithm to compare to test images to see effeciency of the prediction
 public class TestImages {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		MnistReader trainReader = new MnistReader();

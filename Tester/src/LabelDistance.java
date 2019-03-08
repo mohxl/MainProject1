@@ -8,6 +8,7 @@ public class LabelDistance implements Comparable {
 	}
 
 	@Override
+	//comparing label distance to object
 	public int compareTo(Object o) {
 		if(o instanceof LabelDistance) {
 			LabelDistance other = (LabelDistance) o;

@@ -38,19 +38,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+
+// Declaring some variables and calling classes
 public class Main {
 	private int mnistHeight;
 	private int mnistWidth;
-	
-	//tasks to complete
-	// using buffered image to display an image
-	// coloring a buffered image using Graphics2D
-	// mouse listener
-	// mouse motion listener
-	// swing action (starting a thread from swing with a call back on completion ()
-	// Gui created Using windows builder
-	
-	
 	private JFrame frame;
 	public static ExecutorService queryExecutor;
 	public static ExecutorService trainExecutor;
@@ -107,6 +99,7 @@ public class Main {
 	 * @author st20099419
 	 *
 	 */
+	//Applying paint component to the buffered image to draw in panel
 	class CanvasPanel extends JPanel {
 		@Override
 		protected void paintComponent(Graphics g) {
@@ -120,7 +113,7 @@ public class Main {
 	private void initialize() {
 		setFrame(new JFrame());
 		getFrame().setBounds(100, 100, 820, 600);
-		getFrame().setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		getFrame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 				
 		JPanel panel = new CanvasPanel();
@@ -128,11 +121,14 @@ public class Main {
 		g2d = bim.createGraphics();
 		g2d.setPaint(Color.BLACK);
 		g2d.fillRect(0, 0, mnistWidth *  10 , mnistHeight * 10);
-		
+		// input panel
+		// changed colour to black as the MNIST images are in black
 		panel.setPreferredSize(new Dimension(mnistWidth * 10, mnistHeight * 10));
 		panel.setBackground(Color.BLACK);
 		panel.setForeground(Color.WHITE);
-
+		
+		
+		// Output panel showing predicted digit
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(Color.WHITE);
 		panel_1.setLayout(new BorderLayout());
@@ -148,14 +144,16 @@ public class Main {
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				
+				// Triggers even when digit drawn and mouse press is released
+				// scaling buffered image
+				// Returns a transform representing a scaling transformation.
 				BufferedImage scaled = new BufferedImage(20, 20, BufferedImage.TYPE_INT_RGB);
 				AffineTransform trans = new AffineTransform();
 				trans.scale(1/14.0, 1/14.0);
 				BufferedImageOp op = new AffineTransformOp(trans,
 							new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
 				op.filter(bim, scaled);
-				
+				// Adding border to buffered image
 				BufferedImage bordered = new BufferedImage(mnistWidth, mnistHeight, BufferedImage.TYPE_INT_RGB);
 				Graphics2D g2d = (Graphics2D) bordered.getGraphics();
 				g2d.setPaint(Color.black);
@@ -163,6 +161,7 @@ public class Main {
 				
 				g2d.drawImage(scaled, 4, 4, null);
 				
+				//creating a rectangular array of pixels that encapsulates a data buffer that stores sample values
 				int[][] pixels = new int[mnistHeight][mnistWidth];
 				Raster raster = bordered.getRaster();
 				for(int row = 0 ; row < mnistHeight ; row++) {
@@ -186,6 +185,7 @@ public class Main {
 					}
 					System.out.println();
 				}
+				
 				KNN knn = new KNN(reader);
 				ArrayList<LabelDistance> distance = knn.findNeighbours(pixels);
 				Map<Byte, Integer> counts = knn.aggregate(distance, 7);
@@ -201,7 +201,6 @@ public class Main {
 			
 			@Override
 			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub
 				// this is where you color
 				// color the pixel under the mouse.
 				
@@ -221,14 +220,11 @@ public class Main {
 			
 			@Override
 			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stubS
-				// this is where you run KNN
 				last = null;
 			}
 			
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				// TODO Auto-generated method stub
 				// ignored
 				
 			}
@@ -254,9 +250,9 @@ public class Main {
 				
 			}
 			
+			// painting as you drag mouse , colours pixel under current position of mouse
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				// TODO Auto-generated method stub
 				// color the pixel under the mouse
 				g2d.setPaint(Color.WHITE);
 				g2d.setStroke(new BasicStroke(20));
@@ -290,7 +286,7 @@ public class Main {
 				System.out.print("aa");
 			}
 		});
-		// Designing Interface WINDOWS BUILDER USED FOR THIS
+		// Designing GUI using WINDOWS BUILDER 
 		
 		btnClear.setFont(new Font("Tahoma", Font.PLAIN, 20));
 
