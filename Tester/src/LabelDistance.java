@@ -1,5 +1,5 @@
 /**
- * A class to maintain a relationship between labels and the dsitances tot he sample 
+ * A class to maintain a relationship between labels and the dsitances to the sample 
  * @author st20099419
  *
  */
