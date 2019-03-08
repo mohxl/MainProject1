@@ -39,8 +39,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 
-// Declaring some variables and calling classes
+/**
+ * IS a graphical image recognition program.
+ * 
+ * Will prompt the user to draw a a digit and will try to find it's identity
+ * by using KNN algorith.
+ * @author st20099419
+ *
+ */
 public class Main {
+	// Declaring some variables and calling classes
 	private int mnistHeight;
 	private int mnistWidth;
 	private JFrame frame;
@@ -80,8 +88,8 @@ public class Main {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	// Initialize and call Mnistreader class
 	public Main() throws FileNotFoundException, IOException {
+		// Initialize and call Mnistreader class
 		reader = new MnistReader();
 		reader.readMnist();
 		mnistHeight = reader.getImageHeight();
@@ -99,10 +107,16 @@ public class Main {
 	 * @author st20099419
 	 *
 	 */
-	//Applying paint component to the buffered image to draw in panel
+	
 	class CanvasPanel extends JPanel {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		protected void paintComponent(Graphics g) {
+			//Applying paint component to the buffered image to draw in panel
 			g.drawImage(bim, 0, 0 , null);
 		}
 	}
@@ -151,9 +165,10 @@ public class Main {
 				AffineTransform trans = new AffineTransform();
 				trans.scale(1/14.0, 1/14.0);
 				BufferedImageOp op = new AffineTransformOp(trans,
-							new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
+							new RenderingHints(RenderingHints.KEY_ALPHA_INTERPOLATION,  RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY));
 				op.filter(bim, scaled);
 				// Adding border to buffered image
+				
 				BufferedImage bordered = new BufferedImage(mnistWidth, mnistHeight, BufferedImage.TYPE_INT_RGB);
 				Graphics2D g2d = (Graphics2D) bordered.getGraphics();
 				g2d.setPaint(Color.black);
@@ -169,22 +184,22 @@ public class Main {
 						int[] pixel = raster.getPixel(col, row, new int[3]);
 						int avg =  (pixel[0] + pixel[1] + pixel[2] )/3;
 						pixels[row][col] = avg;
-						
-						//pixels [row][col] = (pixel[0] + pixel[1] + pixel[2] )/3;
+
 					}
 				}
 				
-				for(int row = 0 ; row < mnistHeight ; row++ ) {
-					for(int col = 0 ; col < mnistWidth ; col++) {
-						if(pixels[row][col] == 0) {
-							System.out.print(' ');
-						}
-						else {
-							System.out.print('*');
-						}
-					}
-					System.out.println();
-				}
+				// print the reduced image as text for debug purposes.
+//				for(int row = 0 ; row < mnistHeight ; row++ ) {
+//					for(int col = 0 ; col < mnistWidth ; col++) {
+//						if(pixels[row][col] == 0) {
+//							System.out.print(' ');
+//						}
+//						else {
+//							System.out.print('*');
+//						}
+//					}
+//					System.out.println();
+//				}
 				
 				KNN knn = new KNN(reader);
 				ArrayList<LabelDistance> distance = knn.findNeighbours(pixels);
@@ -220,6 +235,7 @@ public class Main {
 			
 			@Override
 			public void mouseExited(MouseEvent e) {
+				//  the last click position is reset 
 				last = null;
 			}
 			
@@ -231,7 +247,7 @@ public class Main {
 			
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				// TODO Auto-generated method stub
+
 				// color the pixel under the mouse.
 				g2d.setPaint(Color.WHITE);
 				g2d.setStroke(new BasicStroke(15));
@@ -246,7 +262,7 @@ public class Main {
 			
 			@Override
 			public void mouseMoved(MouseEvent e) {
-				// TODO Auto-generated method stub
+				// ignored
 				
 			}
 			

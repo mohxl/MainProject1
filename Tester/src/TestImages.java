@@ -6,19 +6,25 @@ import java.util.Random;
 
 // running KNN algorithm to compare to test images to see effeciency of the prediction
 public class TestImages {
+	
 	public static void main(String[] args) throws FileNotFoundException, IOException {
-		MnistReader trainReader = new MnistReader();
-		trainReader.readMnist();
-		trainReader.readMnistTest();
-		KNN knn = new KNN(trainReader);
-		byte[] testLabels = trainReader.getTestLabels();
-		ArrayList<int[][]> testImages = trainReader.getTestImageList();
+		// create a reader
+		MnistReader reader = new MnistReader();
+		reader.readMnist();
+		// read the test data
+		reader.readMnistTest();
+		
+		// create a KNN classifier that will user the reader that was defined above
+		KNN knn = new KNN(reader);
+		byte[] testLabels = reader.getTestLabels();
+		ArrayList<int[][]> testImages = reader.getTestImageList();
 		Random rand = new Random();
 		
 		int matched = 0;
 		int mismatched = 0;
 		
 		for(int i = 0 ; i < 100 ; i++) {
+			// predict the label for 100 random images.
 			int n = rand.nextInt(10000);
 			int actual = (int) testLabels[n];
 			int[][] image = testImages.get(n);

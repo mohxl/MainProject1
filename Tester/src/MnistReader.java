@@ -30,8 +30,8 @@ public class MnistReader {
 
 	public void readMnist() throws FileNotFoundException, IOException {
 		imageList = new ArrayList<>();
-		String train_image_filename = "MNIST\\train-images.idx3-ubyte";
-		String train_label_filename = "MNIST\\train-labels.idx1-ubyte";
+		String train_image_filename = "MNIST/train-images.idx3-ubyte";
+		String train_label_filename = "MNIST/train-labels.idx1-ubyte";
 		
 		trainLabels = readFiles(train_image_filename, train_label_filename, imageList);
 	}
@@ -39,8 +39,8 @@ public class MnistReader {
 	public void readMnistTest() throws FileNotFoundException, IOException {
 		testImageList = new ArrayList<>();
 		// Location
-		String train_image_filename = "MNIST\\t10k-images.idx3-ubyte";
-		String train_label_filename = "MNIST\\t10k-labels.idx1-ubyte";
+		String train_image_filename = "MNIST/t10k-images.idx3-ubyte";
+		String train_label_filename = "MNIST/t10k-labels.idx1-ubyte";
 		
 		testLabels = readFiles(train_image_filename, train_label_filename, testImageList);
 	}
@@ -53,7 +53,15 @@ public class MnistReader {
 		return testLabels;
 	}
 	
-		// Reading Image files 
+	/** 
+	 * Reading Image files 
+	 * @param train_image_filename
+	 * @param train_label_filename
+	 * @param imageList
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
 	private byte[] readFiles(String train_image_filename,
 					String train_label_filename, ArrayList<int[][]>imageList) 
 			throws FileNotFoundException, IOException {
@@ -104,7 +112,6 @@ public class MnistReader {
 					}
 				}
 				imageList.add(image);
-
 			}
 		} 
 
