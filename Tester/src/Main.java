@@ -203,7 +203,7 @@ public class Main {
 				
 				KNN knn = new KNN(reader);
 				ArrayList<LabelDistance> distance = knn.findNeighbours(pixels);
-				Map<Byte, Integer> counts = knn.aggregate(distance, 7);
+				Map<Byte, Integer> counts = knn.aggregate(distance, 12);
 				
 				Byte labeled = knn.findNearest(counts);
 				double cnf = knn.confidence(counts, labeled);
