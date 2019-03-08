@@ -66,7 +66,7 @@ public class KNN {
 
 		for(int i = 0 ; i < k ; i++) {
 			LabelDistance d = distance.get(i);
-			System.out.println(d);
+			//System.out.println(d);
 			if(counts.containsKey(d.label)) {
 				counts.put(d.label, counts.get(d.label) + 1);
 			}
@@ -77,29 +77,16 @@ public class KNN {
 		return counts;
 	}
 	
-	
-	
-	//public void test2() throws FileNotFoundException, IOException {
-		//int drawImage = handrawn.drawline()[0];
-	//}
-	
-	public void test3() throws FileNotFoundException, IOException {
-		reader.readMnist();
+	public double confidence(Map<Byte, Integer> map, byte b) {
+		int count = 0;
+		for(byte k: map.keySet()) {
+			if(b == k) {
+				count++;
+			}
+		}
 		
-		// get the first item and put intoa 2d array
-		//int[][] sample = reader.getImageList().get(0);
-		//int label = reader.getLabel_data()[0];
-		//int[][] distance = DistanceOfP.getdistance().get(0);
-		
-		
-		
-		//System.out.println("Distance and labels =  " + label, + distance);
-				
-		
+		return count * 100.0 / map.size();
 	}
-	
-	
-	
 	
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		KNN knn = new KNN();

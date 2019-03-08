@@ -8,13 +8,15 @@ import java.util.ArrayList;
 
 public class MnistReader {
 
-	private  byte[] label_data;
+	private  byte[] trainLabels;
 	private  ArrayList<int[][]> imageList;
 	private int imageWidth;
 	private int imageHeight;
+	private ArrayList<int[][]> testImageList;
+	private byte[] testLabels;
 
 	public byte[] getLabels() {
-		return label_data;
+		return trainLabels;
 	}
 
 	public ArrayList<int[][]> getImageList() {
@@ -31,13 +33,34 @@ public class MnistReader {
 		String train_image_filename = "MNIST\\train-images.idx3-ubyte";
 		String train_label_filename = "MNIST\\train-labels.idx1-ubyte";
 		
-		//Using data input stream
-		DataInputStream label_data_stream = null;
-		DataInputStream image_data_stream = null;
+		trainLabels = readFiles(train_image_filename, train_label_filename, imageList);
+	}
 
-		try  {
-			label_data_stream = new DataInputStream(new FileInputStream(train_label_filename));
-			image_data_stream = new DataInputStream(new FileInputStream(train_image_filename));
+	public void readMnistTest() throws FileNotFoundException, IOException {
+		testImageList = new ArrayList<>();
+		String train_image_filename = "MNIST\\t10k-images.idx3-ubyte";
+		String train_label_filename = "MNIST\\t10k-labels.idx1-ubyte";
+		
+		testLabels = readFiles(train_image_filename, train_label_filename, testImageList);
+	}
+	
+	public ArrayList<int[][]> getTestImageList() {
+		return testImageList;
+	}
+
+	public byte[] getTestLabels() {
+		return testLabels;
+	}
+
+	private byte[] readFiles(String train_image_filename,
+					String train_label_filename, ArrayList<int[][]>imageList) 
+			throws FileNotFoundException, IOException {
+		//Using data input stream
+		byte[] label_data;
+
+		try (DataInputStream label_data_stream = new DataInputStream(new FileInputStream(train_label_filename));
+				DataInputStream image_data_stream = new DataInputStream(new FileInputStream(train_image_filename));) {
+			
 		
 			int startcode_img = image_data_stream.readInt();
 			int startcode_label = label_data_stream.readInt();
@@ -81,9 +104,9 @@ public class MnistReader {
 				imageList.add(image);
 
 			}
-		} finally {
-			System.out.println("The 'try catch' is finished.");
-		}
+		} 
+
+		return label_data;
 	}
 
 	public int getImageWidth() {

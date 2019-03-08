@@ -18,6 +18,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JPanel;
 
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 
@@ -29,6 +30,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.util.ArrayList;
 import java.util.Map;
@@ -57,6 +59,8 @@ public class Main {
 	BufferedImage bim;
 	private Graphics2D g2d;
 	Point last = null;
+	JLabel predicted = new JLabel("");
+	JLabel confidence = new JLabel();
 	
 	/**
 	 * Launch the application.
@@ -118,6 +122,7 @@ public class Main {
 		getFrame().setBounds(100, 100, 820, 600);
 		getFrame().setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
+				
 		JPanel panel = new CanvasPanel();
 		
 		g2d = bim.createGraphics();
@@ -130,23 +135,36 @@ public class Main {
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(Color.WHITE);
-
+		panel_1.setLayout(new BorderLayout());
+		predicted.setBackground(Color.white);
+		
+		Font font = predicted.getFont();
+		predicted.setFont(new Font(font.getName(), Font.PLAIN, font.getSize() * 10));
+		
+		panel_1.add(predicted,BorderLayout.CENTER);
+		panel_1.add(confidence, BorderLayout.SOUTH);
 		
 		panel.addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
-				// probably ignored
-				System.out.println("released");
-				BufferedImage scaled = new BufferedImage(mnistWidth, mnistHeight, BufferedImage.TYPE_INT_RGB);
+				
+				BufferedImage scaled = new BufferedImage(20, 20, BufferedImage.TYPE_INT_RGB);
 				AffineTransform trans = new AffineTransform();
-				trans.scale(0.1, 0.1);
-				BufferedImageOp op = new AffineTransformOp(trans, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+				trans.scale(1/14.0, 1/14.0);
+				BufferedImageOp op = new AffineTransformOp(trans,
+							new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
 				op.filter(bim, scaled);
 				
+				BufferedImage bordered = new BufferedImage(mnistWidth, mnistHeight, BufferedImage.TYPE_INT_RGB);
+				Graphics2D g2d = (Graphics2D) bordered.getGraphics();
+				g2d.setPaint(Color.black);
+				g2d.fillRect(0, 0, mnistWidth, mnistHeight);
+				
+				g2d.drawImage(scaled, 4, 4, null);
+				
 				int[][] pixels = new int[mnistHeight][mnistWidth];
-				Raster raster = scaled.getRaster();
+				Raster raster = bordered.getRaster();
 				for(int row = 0 ; row < mnistHeight ; row++) {
 					for(int col = 0 ; col < mnistWidth; col++) {
 						int[] pixel = raster.getPixel(col, row, new int[3]);
@@ -170,11 +188,15 @@ public class Main {
 				}
 				KNN knn = new KNN(reader);
 				ArrayList<LabelDistance> distance = knn.findNeighbours(pixels);
-				Map<Byte, Integer> counts = knn.aggregate(distance, 10);
+				Map<Byte, Integer> counts = knn.aggregate(distance, 7);
 				
 				Byte labeled = knn.findNearest(counts);
+				double cnf = knn.confidence(counts, labeled);
 				System.out.println("Nearest neighbours prediction = " + labeled);
 				last = null;
+				
+				predicted.setText(Byte.toString(labeled));
+				confidence.setText(String.format("Confidents = %2f", cnf));
 			}
 			
 			@Override
@@ -184,7 +206,7 @@ public class Main {
 				// color the pixel under the mouse.
 				
 				g2d.setPaint(Color.WHITE);
-				g2d.setStroke(new BasicStroke(10));
+				g2d.setStroke(new BasicStroke(15));
 				if(last == null) {
 					
 					g2d.drawLine(e.getX(), e.getY(), e.getX(), e.getY());
@@ -216,7 +238,7 @@ public class Main {
 				// TODO Auto-generated method stub
 				// color the pixel under the mouse.
 				g2d.setPaint(Color.WHITE);
-				g2d.setStroke(new BasicStroke(10));
+				g2d.setStroke(new BasicStroke(15));
 				g2d.drawLine(e.getX(), e.getY(), e.getX(), e.getY());
 				
 				last = e.getPoint();
@@ -237,7 +259,7 @@ public class Main {
 				// TODO Auto-generated method stub
 				// color the pixel under the mouse
 				g2d.setPaint(Color.WHITE);
-				g2d.setStroke(new BasicStroke(10));
+				g2d.setStroke(new BasicStroke(20));
 				if(last == null) {
 					
 					g2d.drawLine(e.getX(), e.getY(), e.getX(), e.getY());
