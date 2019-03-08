@@ -31,12 +31,14 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class Main {
 	private static final int SIDE_LENGTH = 280;
-	// Official java tutorial on oracle
+	
+	//tasks to complete
 	// using buffered image to display an image
 	// coloring a buffered image using Graphics2D
 	// mouse listener
 	// mouse motion listener
-	// swing action? (starting a thread from swing with a call back on completion ()
+	// swing action (starting a thread from swing with a call back on completion ()
+	// Gui created Using windows builder
 	
 	
 	private JFrame frame;
@@ -73,6 +75,7 @@ public class Main {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
+	// Initialize and call Mnistreader class
 	public Main() throws FileNotFoundException, IOException {
 		reader = new MnistReader();
 		reader.readMnist();
@@ -130,6 +133,12 @@ public class Main {
 			public void mousePressed(MouseEvent e) {
 				// TODO Auto-generated method stub
 				// this is where you color
+				// color the pixel under the mouse.
+				System.out.println(e.getX() + " " + e.getY());
+				g2d.setPaint(Color.black);
+				g2d.setStroke(new BasicStroke(10));
+				g2d.drawLine(e.getX(), e.getY(), e.getX(), e.getY());
+				panel.repaint();
 				System.out.println("drag started, record the starting point");
 			}
 			
@@ -151,11 +160,7 @@ public class Main {
 			public void mouseClicked(MouseEvent e) {
 				// TODO Auto-generated method stub
 				// color the pixel under the mouse.
-				System.out.println(e.getX() + " " + e.getY());
-				g2d.setPaint(Color.black);
-				g2d.setStroke(new BasicStroke(10));
-				g2d.drawLine(e.getX(), e.getY(), e.getX(), e.getY());
-				panel.repaint();
+				
 			}
 		});
 		
@@ -196,6 +201,7 @@ public class Main {
 				System.out.print("aa");
 			}
 		});
+		// Designing Interface WINDOWS BUILDER USED FOR THIS
 		
 		btnClear.setFont(new Font("Tahoma", Font.PLAIN, 20));
 
