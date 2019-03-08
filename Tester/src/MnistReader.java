@@ -61,7 +61,7 @@ public class MnistReader {
 			byte[] image_data = new byte[image_size * number_of_images];
 
 			label_data_stream.read(label_data);
-			
+			image_data_stream.read(image_data);
 
 			int[][] image;
 			for (int i = 0; i < number_of_labels; i++) {
@@ -72,15 +72,7 @@ public class MnistReader {
 
 				for (int row = 0; row < image_height; row++) {
 					for (int col = 0; col < image_width; col++) {
-						int greyValue = image_data_stream.read();
-						
-						// covert unsigned bytes to signed integers 
-						// Basically we have a byte that's -127 - this should really be an int of value 255
-						//  byte can have only -127 to 128 range
-						// a pixel can have a color range of 0 to 255 so if we read the data as bytes and 
-						// directly store them in ints, they don't have the right value.
-						//
-						image[row][col] = 0xFF000000 | (greyValue << 16) | (greyValue << 8) | (greyValue);
+						image[row][col] = image_data[(i * image_size) + ((row * image_width) + col)] & 0XFF;
 
 					}
 				}

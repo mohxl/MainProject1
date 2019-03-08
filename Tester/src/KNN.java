@@ -94,5 +94,6 @@ public class KNN {
 		KNN knn = new KNN();
 		knn.reader.readMnist();
 		knn.test();
+
 	}
 }
